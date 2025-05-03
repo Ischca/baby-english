@@ -1,0 +1,7 @@
+# Node
+node_modules
+# Expo
+*.expo
+.expo-shared
+# Supabase local emulators
+.supabase

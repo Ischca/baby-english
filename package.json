@@ -1,0 +1,14 @@
+{
+    "name": "baby-english-monorepo",
+    "private": true,
+    "packageManager": "pnpm@10.10.0",
+    "scripts": {
+        "lint": "eslint \"{apps,packages}/**/*.{ts,tsx}\"",
+        "test": "vitest"
+    },
+    "devDependencies": {
+        "eslint": "^9.26.0",
+        "prettier": "^3.5.3",
+        "vitest": "^3.1.2"
+    }
+}

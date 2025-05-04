@@ -1,0 +1,77 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Global Project Rules for “Baby‑English MVP”
+alwaysApply: true           # Cursor will attach this to every context
+globs:
+  - "**/*.{ts,tsx,md,mdx}"
+  - "apps/edge/**/*.ts"
+  - "supabase/migrations/**/*.sql"
+---
+
+# 📚 Coding Standards
+1. **TypeScript strict** ― `noImplicitAny`, `exactOptionalPropertyTypes` を有効にすること。  
+2. **Imports**  
+   - React コンポーネントは **named export** (`export function ScreenName()`) を推奨。  
+   - サイドエフェクトを伴う import は `apps/mobile/src/bootstrap.ts` に集約。  
+3. **Runtime Validation** ― 外部入力（LLM 返却含む）は *必ず* **Zod** で検証し、  
+   `Infer<typeof schema>` 型を export して共有ライブラリから再利用する。  
+4. **Styling** ― UI コンポーネントは **Tamagui**。Tailwind クラスは使用しない。  
+5. **Edge Functions** ― Deno ランタイム限定。Node API (`fs`, `path`) を直接利用しない。
+
+# 🏗️ Architectural Rules
+- **Data Fetching** はすべて `@shared/api.ts` (TanStack Query ラッパ) 経由。  
+- **Reactive State** は **Zustand**。Redux／MobX を導入しない。  
+- **Navigation** は **Expo Router** を使用し、Stack + Tabs を `/app` ディレクトリ構造で表現。  
+- **Word Gatekeeper** ロジックを変更する場合は、CEFR 語彙リストの単一ソース  
+  `/packages/shared/wordlists.ts` を必ず更新し、ユニットテストを追加すること。  
+- **LLM 呼び出し** は `OpenAI ChatCompletion` あるいは `Responses API` のみ。  
+  他社 LLM を追加する際は `docs/llm-rationale.md` に比較検証を書き、レビュア合意を得る。  
+
+# 🧪 Testing
+- **Unit** ― Vitest、`*.test.ts[x]` をソース隣接で配置。  
+- **E2E** ― Playwright。main ブランチの GH Action で `pnpm e2e:ci` を実行。  
+- **Coverage** ― 閾値 80 %以上。Edge Function は `supabase test` で最低 1 ケース。  
+
+# 🔀 Git Workflow
+| ブランチ種別 | 命名 | マージ方法 |
+|--------------|------|------------|
+| Feature      | `feat/<topic>` | Squash & Merge |
+| Fix          | `fix/<topic>`  | Squash & Merge |
+| Chore/Docs   | `chore/<topic>` `docs/<topic>` | Rebase Merge |
+| Release      | `release/*`    | Merge Commit |
+
+- **Commit** は Conventional Commits。例：`feat(chat): add scorer util`  
+- **PR テンプレ** を必ず記入し、`pnpm lint && pnpm test` が通ること。  
+- `main` への直接 push は禁止 (`branch protection` 有効)。  
+
+# ⚙️ Scripts & Automation
+```jsonc
+// package.json@root (抜粋)
+{
+  "scripts": {
+    "dev": "concurrently -k \"supabase functions serve --env-file ./.env.local --no-verify-jwt\" \"pnpm --filter apps/mobile expo start\"",
+    "lint": "eslint \"{apps,packages}/**/*.{ts,tsx}\"",
+    "test": "vitest",
+    "e2e:ci": "playwright test --reporter=dot"
+  }
+}
+```
+
+* **CI** (GitHub Actions) は上記スクリプトを順に実行し、EAS ビルド (`eas build --profile preview`) 成功で pass。
+
+# 🪄 Devin / Cursor Instructions
+
+* Use `pnpm dev` to spin up both **Expo** and **Supabase Edge** locally.
+* Before generating code, load this rule file to ensure context; verify with `cursor rules` command.
+* Whenever creating a new file, check if an existing shared util covers the need. If not, place common code in `packages/shared`.
+* After each code generation, run `pnpm lint --fix` automatically.
+
+# ✅ Definition of Done
+
+1. Tests & Lint pass (CI green).
+2. New/updated API types added to `packages/shared/schema.d.ts`.
+3. Cursor comment `@done` at bottom of PR description.

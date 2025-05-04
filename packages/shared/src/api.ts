@@ -15,7 +15,7 @@ export enum ApiErrorType {
 
 export class ApiError extends Error {
   type: ApiErrorType;
-  status?: number;
+  status: number | undefined;
   
   constructor(message: string, type: ApiErrorType, status?: number) {
     super(message);
@@ -33,13 +33,18 @@ export async function fetchApi<T>(
   const baseUrl = 'http://127.0.0.1:54321/functions/v1';
   
   try {
-    const response = await fetch(`${baseUrl}${endpoint}`, {
+    const options: RequestInit = {
       method,
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: body ? JSON.stringify(body) : undefined
-    });
+      }
+    };
+    
+    if (body) {
+      options.body = JSON.stringify(body);
+    }
+    
+    const response = await fetch(`${baseUrl}${endpoint}`, options);
     
     if (!response.ok) {
       let errorType = ApiErrorType.SERVER_ERROR;
@@ -74,4 +79,19 @@ export async function fetchApi<T>(
 
 export async function sendChatMessage(request: ChatRequest): Promise<ChatResponse> {
   return fetchApi<ChatResponse>(API_ENDPOINTS.CHAT, 'POST', request);
+}
+
+export interface Mission {
+  id: string;
+  name: string;
+  description: string;
+  vocabulary: string[];
+}
+
+export interface MissionsResponse {
+  missions: Mission[];
+}
+
+export async function getMissions(): Promise<MissionsResponse> {
+  return fetchApi<MissionsResponse>(API_ENDPOINTS.MISSIONS);
 }

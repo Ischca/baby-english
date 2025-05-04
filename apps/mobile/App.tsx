@@ -3,15 +3,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { 
   StyleSheet, 
   View, 
-  SafeAreaView
+  SafeAreaView,
+  TouchableOpacity,
+  Text
 } from 'react-native';
 import { MissionScreen } from './screens/MissionScreen';
 import { ChatScreen } from './screens/ChatScreen';
+import { SessionsScreen } from './screens/SessionsScreen';
 import { AgeMeter } from './components/age/AgeMeter';
 import { getUser, updateUser } from 'shared/src/api';
 
 type MissionType = 'colors' | 'numbers' | 'greetings';
-type AppScreen = 'missions' | 'chat';
+type AppScreen = 'missions' | 'chat' | 'sessions';
 
 const AGE_LEVEL_THRESHOLDS = [
   10,   // Level 0 -> 1
@@ -109,6 +112,14 @@ export function App() {
     setTotalScore(prevScore => prevScore + score);
   };
 
+  const handleViewSessions = () => {
+    setCurrentScreen('sessions');
+  };
+
+  const handleBackFromSessions = () => {
+    setCurrentScreen('missions');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -117,16 +128,29 @@ export function App() {
           isLevelingUp={isLevelingUp}
           onAnimationComplete={handleAnimationComplete}
         />
+        {currentScreen === 'missions' && (
+          <TouchableOpacity 
+            style={styles.historyButton} 
+            onPress={handleViewSessions}
+          >
+            <Text style={styles.historyButtonText}>View History</Text>
+          </TouchableOpacity>
+        )}
       </View>
       
       {currentScreen === 'missions' ? (
         <MissionScreen onStartChat={handleStartChat} />
-      ) : (
+      ) : currentScreen === 'chat' ? (
         <ChatScreen 
           sessionId={sessionId}
           missionType={activeMission}
           onScoreUpdate={handleScoreUpdate}
           onBack={handleBackToMissions}
+        />
+      ) : (
+        <SessionsScreen 
+          userId={userId}
+          onBack={handleBackFromSessions}
         />
       )}
       <StatusBar style="auto" />
@@ -147,6 +171,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  historyButton: {
+    backgroundColor: '#4a86e8',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 4,
+  },
+  historyButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });

@@ -3,7 +3,8 @@ import { ChatRequest, ChatResponse, User } from './schema';
 export const API_ENDPOINTS = {
   CHAT: '/chat',
   MISSIONS: '/missions',
-  USER: '/user'
+  USER: '/user',
+  SESSIONS: '/sessions'
 };
 
 export enum ApiErrorType {
@@ -114,4 +115,50 @@ export async function getUser(userId: string): Promise<UserResponse> {
 
 export async function updateUser(request: UserUpdateRequest): Promise<UserResponse> {
   return fetchApi<UserResponse>(API_ENDPOINTS.USER, 'POST', request);
+}
+
+export interface SessionListRequest {
+  userId: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SessionDetails {
+  id: string;
+  startedAt: string;
+  endedAt: string | null;
+  missionType: string;
+  messageCount: number;
+  totalScore: number;
+}
+
+export interface SessionListResponse {
+  sessions: SessionDetails[];
+  totalCount: number;
+}
+
+export interface SessionExportRequest {
+  sessionId: string;
+  format?: 'json' | 'csv' | 'txt';
+}
+
+export interface SessionExportResponse {
+  sessionId: string;
+  exportUrl: string;
+  format: string;
+}
+
+export async function getSessions(request: SessionListRequest): Promise<SessionListResponse> {
+  const { userId, limit = 10, offset = 0 } = request;
+  return fetchApi<SessionListResponse>(
+    `${API_ENDPOINTS.SESSIONS}?userId=${userId}&limit=${limit}&offset=${offset}`
+  );
+}
+
+export async function exportSession(request: SessionExportRequest): Promise<SessionExportResponse> {
+  return fetchApi<SessionExportResponse>(
+    `${API_ENDPOINTS.SESSIONS}/export`,
+    'POST',
+    request
+  );
 }

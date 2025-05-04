@@ -1,8 +1,9 @@
-import { ChatRequest, ChatResponse } from './schema';
+import { ChatRequest, ChatResponse, User } from './schema';
 
 export const API_ENDPOINTS = {
   CHAT: '/chat',
-  MISSIONS: '/missions'
+  MISSIONS: '/missions',
+  USER: '/user'
 };
 
 export enum ApiErrorType {
@@ -94,4 +95,23 @@ export interface MissionsResponse {
 
 export async function getMissions(): Promise<MissionsResponse> {
   return fetchApi<MissionsResponse>(API_ENDPOINTS.MISSIONS);
+}
+
+export interface UserUpdateRequest {
+  userId: string;
+  ageLevel?: number;
+}
+
+export interface UserResponse {
+  id: string;
+  ageLevel: number;
+  updated?: boolean;
+}
+
+export async function getUser(userId: string): Promise<UserResponse> {
+  return fetchApi<UserResponse>(`${API_ENDPOINTS.USER}?userId=${userId}`);
+}
+
+export async function updateUser(request: UserUpdateRequest): Promise<UserResponse> {
+  return fetchApi<UserResponse>(API_ENDPOINTS.USER, 'POST', request);
 }

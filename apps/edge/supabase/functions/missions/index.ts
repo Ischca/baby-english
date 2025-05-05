@@ -1,6 +1,10 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
+import { 
+  getVocabularyByCategory as getVocabularyByCategoryShared,
+  VocabularyCategory
+} from "../../../../../packages/shared/src/wordlists.ts";
 
 interface Mission {
   id: string;
@@ -12,18 +16,6 @@ interface Mission {
 interface MissionsResponse {
   missions: Mission[];
 }
-
-const COLOR_WORDS_BASIC = [
-  'red', 'blue', 'green', 'yellow', 'black', 'white', 'pink', 'purple', 'orange', 'brown'
-];
-
-const NUMBER_WORDS_BASIC = [
-  'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'
-];
-
-const GREETING_WORDS_BASIC = [
-  'hi', 'hello', 'bye', 'goodbye', 'yes', 'no', 'please', 'thank you', 'sorry', 'good'
-];
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
 const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
@@ -37,54 +29,14 @@ const supabase = createClient(supabaseUrl, supabaseKey);
  */
 async function getVocabularyByCategory(category: string, ageLevel: number): Promise<string[]> {
   try {
-    const { data, error } = await supabase
-      .from('vocabulary_lists')
-      .select('words')
-      .eq('category', category)
-      .lte('min_age_level', ageLevel)
-      .gte('max_age_level', ageLevel)
-      .single();
-    
-    if (error) {
-      console.error('Error fetching vocabulary:', error);
-      switch (category) {
-        case 'colors':
-          return COLOR_WORDS_BASIC;
-        case 'numbers':
-          return NUMBER_WORDS_BASIC;
-        case 'greetings':
-          return GREETING_WORDS_BASIC;
-        default:
-          return [];
-      }
-    }
-    
-    if (data && data.words) {
-      return data.words as string[];
-    }
-    
-    switch (category) {
-      case 'colors':
-        return COLOR_WORDS_BASIC;
-      case 'numbers':
-        return NUMBER_WORDS_BASIC;
-      case 'greetings':
-        return GREETING_WORDS_BASIC;
-      default:
-        return [];
-    }
+    return await getVocabularyByCategoryShared(
+      category as VocabularyCategory, 
+      ageLevel, 
+      supabase
+    );
   } catch (error) {
     console.error('Error fetching vocabulary:', error);
-    switch (category) {
-      case 'colors':
-        return COLOR_WORDS_BASIC;
-      case 'numbers':
-        return NUMBER_WORDS_BASIC;
-      case 'greetings':
-        return GREETING_WORDS_BASIC;
-      default:
-        return [];
-    }
+    return [];
   }
 }
 

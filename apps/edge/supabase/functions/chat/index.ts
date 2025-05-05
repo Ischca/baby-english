@@ -8,18 +8,11 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { OpenAI } from "https://deno.land/x/openai@v4.20.1/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 import { v4 as uuidv4 } from "https://deno.land/std@0.220.1/uuid/mod.ts";
-
-const COLOR_WORDS_BASIC = [
-  'red', 'blue', 'green', 'yellow', 'black', 'white', 'pink', 'purple', 'orange', 'brown'
-];
-
-const NUMBER_WORDS_BASIC = [
-  'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'
-];
-
-const GREETING_WORDS_BASIC = [
-  'hi', 'hello', 'bye', 'goodbye', 'yes', 'no', 'please', 'thank you', 'sorry', 'good'
-];
+import { 
+  getVocabularyForAge as getVocabularyForAgeShared,
+  getVocabularyByCategory,
+  VocabularyCategory
+} from "../../../../../packages/shared/src/wordlists.ts";
 
 interface ChatRequest {
   sessionId: string;
@@ -82,26 +75,10 @@ const supabase = createClient(supabaseUrl, supabaseKey);
  */
 async function getVocabularyForAge(ageLevel: number): Promise<string[]> {
   try {
-    const { data, error } = await supabase
-      .from('vocabulary_lists')
-      .select('words')
-      .lte('min_age_level', ageLevel)
-      .gte('max_age_level', ageLevel);
-    
-    if (error) {
-      console.error('Error fetching vocabulary:', error);
-      return [...COLOR_WORDS_BASIC, ...NUMBER_WORDS_BASIC, ...GREETING_WORDS_BASIC];
-    }
-    
-    if (data && data.length > 0) {
-      const allWords = data.flatMap((item: { words: string[] }) => item.words);
-      return [...new Set(allWords)];
-    }
-    
-    return [...COLOR_WORDS_BASIC, ...NUMBER_WORDS_BASIC, ...GREETING_WORDS_BASIC];
+    return await getVocabularyForAgeShared(ageLevel, supabase);
   } catch (error) {
     console.error('Error fetching vocabulary:', error);
-    return [...COLOR_WORDS_BASIC, ...NUMBER_WORDS_BASIC, ...GREETING_WORDS_BASIC];
+    return getVocabularyForAgeShared(ageLevel);
   }
 }
 
@@ -294,34 +271,14 @@ Deno.serve(async (req) => {
 
     let targetWords: string[] = [];
     try {
-      const { data, error } = await supabase
-        .from('vocabulary_lists')
-        .select('words')
-        .eq('category', missionType)
-        .lte('min_age_level', ageLevel)
-        .gte('max_age_level', ageLevel)
-        .single();
-      
-      if (!error && data) {
-        targetWords = data.words;
-      } else {
-        switch (missionType) {
-          case 'colors':
-            targetWords = COLOR_WORDS_BASIC;
-            break;
-          case 'numbers':
-            targetWords = NUMBER_WORDS_BASIC;
-            break;
-          case 'greetings':
-            targetWords = GREETING_WORDS_BASIC;
-            break;
-          default:
-            targetWords = [...COLOR_WORDS_BASIC, ...NUMBER_WORDS_BASIC, ...GREETING_WORDS_BASIC];
-        }
-      }
+      targetWords = await getVocabularyByCategory(
+        missionType as VocabularyCategory, 
+        ageLevel, 
+        supabase
+      );
     } catch (error) {
       console.error('Error fetching target words:', error);
-      targetWords = [...COLOR_WORDS_BASIC, ...NUMBER_WORDS_BASIC, ...GREETING_WORDS_BASIC];
+      targetWords = await getVocabularyForAgeShared(ageLevel);
     }
 
     const userWords = message.toLowerCase().split(/\s+/).map(word => 

@@ -83,21 +83,6 @@ Deno.serve(async (req) => {
 
     const ageLevel = 0; // Default to age 0 for MVP
 
-    if (!isAllowedVocabulary(message, ageLevel)) {
-      return new Response(
-        JSON.stringify({ 
-          error: "Forbidden vocabulary",
-          message: "Your message contains words that are not allowed for your age level."
-        }),
-        { 
-          status: 403,
-          headers: { 
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*"
-          }
-        }
-      );
-    }
 
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-4o",

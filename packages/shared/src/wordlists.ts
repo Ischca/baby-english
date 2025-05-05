@@ -123,22 +123,22 @@ export async function getVocabularyByCategory(
   }
   
   try {
+    // Get all vocabulary entries for this category up to and including the user's age level
     const { data, error } = await supabaseClient
       .from('vocabulary_lists')
       .select('words')
       .eq('category', category)
-      .lte('min_age_level', ageLevel)
-      .gte('max_age_level', ageLevel)
-      .single();
+      .lte('max_age_level', ageLevel);
     
     if (error) {
       console.error('Error fetching vocabulary:', error);
       return getInMemoryVocabularyByCategory(category, ageLevel);
     }
     
-    if (data && data.words) {
-      vocabularyCache[cacheKey] = data.words;
-      return data.words;
+    if (data && data.length > 0) {
+      const allWords = data.flatMap((item: { words: string[] }) => item.words);
+      vocabularyCache[cacheKey] = [...new Set(allWords)] as string[];
+      return vocabularyCache[cacheKey];
     }
     
     return getInMemoryVocabularyByCategory(category, ageLevel);
@@ -163,11 +163,11 @@ export async function getVocabularyForAge(
   }
   
   try {
+    // Get all vocabulary entries up to and including the user's age level
     const { data, error } = await supabaseClient
       .from('vocabulary_lists')
       .select('words')
-      .lte('min_age_level', ageLevel)
-      .gte('max_age_level', ageLevel);
+      .lte('max_age_level', ageLevel);
     
     if (error) {
       console.error('Error fetching vocabulary:', error);

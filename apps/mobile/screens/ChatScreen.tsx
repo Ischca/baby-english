@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
   SafeAreaView
 } from 'react-native';
-import { sendChatMessage } from '@shared/api';
+import { sendChatMessage, ApiError, ApiErrorType } from '@shared/api';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -98,9 +98,21 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({
         onScoreUpdate(response.evaluation.score);
       }
     } catch (error) {
+      let errorContent = 'Sorry, something went wrong. Please try again.';
+      
+      if (error instanceof ApiError) {
+        if (error.type === ApiErrorType.FORBIDDEN_VOCABULARY) {
+          errorContent = 'This word seems too advanced for your current level. Try using simpler words that you\'ve learned so far.';
+        } else if (error.type === ApiErrorType.NETWORK_ERROR) {
+          errorContent = 'Unable to connect to the server. Please check your internet connection and try again.';
+        } else if (error.type === ApiErrorType.VALIDATION_ERROR) {
+          errorContent = 'Please enter a valid message.';
+        }
+      }
+      
       const errorMessage: Message = {
         id: uuidv4(),
-        content: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        content: errorContent,
         role: 'assistant',
         timestamp: new Date()
       };

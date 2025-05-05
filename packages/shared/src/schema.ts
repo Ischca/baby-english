@@ -41,7 +41,8 @@ export type Score = z.infer<typeof ScoreSchema>;
 
 export const ChatRequestSchema = z.object({
   sessionId: z.string().uuid(),
-  message: z.string()
+  message: z.string(),
+  userId: z.string().uuid().optional()
 });
 
 export type ChatRequest = z.infer<typeof ChatRequestSchema>;

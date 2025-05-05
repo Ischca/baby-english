@@ -1,167 +1,151 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
+import { v4 as uuidv4 } from "https://deno.land/std@0.220.1/uuid/mod.ts";
 import {
   SessionSchema,
   MessageSchema,
   ScoreSchema,
 } from '../../../../../packages/shared/src/schema';
 
-const mockSessions = new Map<
-  string,
-  {
-    id: string;
-    userId: string;
-    startedAt: string;
-    endedAt: string | null;
-    missionType: string;
+const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+/**
+ * Get sessions for a user from the database
+ * @param userId The user's ID
+ * @param limit Maximum number of sessions to return
+ * @param offset Number of sessions to skip
+ * @returns Array of sessions and total count
+ */
+async function getUserSessions(userId: string, limit: number = 10, offset: number = 0): Promise<{ sessions: any[], totalCount: number }> {
+  try {
+    const { count, error: countError } = await supabase
+      .from('sessions')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+    
+    if (countError) {
+      console.error('Error counting sessions:', countError);
+      return { sessions: [], totalCount: 0 };
+    }
+    
+    const { data: sessions, error } = await supabase
+      .from('sessions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('started_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+    
+    if (error) {
+      console.error('Error fetching sessions:', error);
+      return { sessions: [], totalCount: 0 };
+    }
+    
+    return { 
+      sessions: sessions || [], 
+      totalCount: count || 0 
+    };
+  } catch (error) {
+    console.error('Error fetching user sessions:', error);
+    return { sessions: [], totalCount: 0 };
   }
->();
-
-const mockMessages = new Map<
-  string,
-  Array<{
-    id: string;
-    sessionId: string;
-    role: 'user' | 'assistant';
-    content: string;
-    createdAt: string;
-  }>
->();
-
-const mockScores = new Map<
-  string,
-  Array<{
-    id: string;
-    sessionId: string;
-    mission: string;
-    targetWords: string[];
-    success: boolean;
-    score: number;
-  }>
->();
-
-function initializeMockData() {
-  const session1Id = crypto.randomUUID();
-  const session1 = {
-    id: session1Id,
-    userId: 'user-123',
-    startedAt: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-    endedAt: new Date(Date.now() - 3000000).toISOString(), // 50 minutes ago
-    missionType: 'colors',
-  };
-  mockSessions.set(session1Id, session1);
-
-  mockMessages.set(session1Id, [
-    {
-      id: crypto.randomUUID(),
-      sessionId: session1Id,
-      role: 'assistant',
-      content: "Let's learn colors! Can you say a color?",
-      createdAt: new Date(Date.now() - 3600000).toISOString(),
-    },
-    {
-      id: crypto.randomUUID(),
-      sessionId: session1Id,
-      role: 'user',
-      content: 'Red!',
-      createdAt: new Date(Date.now() - 3550000).toISOString(),
-    },
-    {
-      id: crypto.randomUUID(),
-      sessionId: session1Id,
-      role: 'assistant',
-      content: 'Yes, red is a color! Can you say another color?',
-      createdAt: new Date(Date.now() - 3500000).toISOString(),
-    },
-    {
-      id: crypto.randomUUID(),
-      sessionId: session1Id,
-      role: 'user',
-      content: 'Blue!',
-      createdAt: new Date(Date.now() - 3450000).toISOString(),
-    },
-  ]);
-
-  mockScores.set(session1Id, [
-    {
-      id: crypto.randomUUID(),
-      sessionId: session1Id,
-      mission: 'colors',
-      targetWords: ['red'],
-      success: true,
-      score: 5,
-    },
-    {
-      id: crypto.randomUUID(),
-      sessionId: session1Id,
-      mission: 'colors',
-      targetWords: ['blue'],
-      success: true,
-      score: 5,
-    },
-  ]);
-
-  const session2Id = crypto.randomUUID();
-  const session2 = {
-    id: session2Id,
-    userId: 'user-123',
-    startedAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-    endedAt: new Date(Date.now() - 84600000).toISOString(), // 23.5 hours ago
-    missionType: 'numbers',
-  };
-  mockSessions.set(session2Id, session2);
-
-  mockMessages.set(session2Id, [
-    {
-      id: crypto.randomUUID(),
-      sessionId: session2Id,
-      role: 'assistant',
-      content: "Let's count together! Do you know any numbers?",
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-    },
-    {
-      id: crypto.randomUUID(),
-      sessionId: session2Id,
-      role: 'user',
-      content: 'One!',
-      createdAt: new Date(Date.now() - 86350000).toISOString(),
-    },
-    {
-      id: crypto.randomUUID(),
-      sessionId: session2Id,
-      role: 'assistant',
-      content: 'Great! One is the first number. Can you say another number?',
-      createdAt: new Date(Date.now() - 86300000).toISOString(),
-    },
-    {
-      id: crypto.randomUUID(),
-      sessionId: session2Id,
-      role: 'user',
-      content: 'Two!',
-      createdAt: new Date(Date.now() - 86250000).toISOString(),
-    },
-  ]);
-
-  mockScores.set(session2Id, [
-    {
-      id: crypto.randomUUID(),
-      sessionId: session2Id,
-      mission: 'numbers',
-      targetWords: ['one'],
-      success: true,
-      score: 5,
-    },
-    {
-      id: crypto.randomUUID(),
-      sessionId: session2Id,
-      mission: 'numbers',
-      targetWords: ['two'],
-      success: true,
-      score: 5,
-    },
-  ]);
 }
 
-initializeMockData();
+/**
+ * Get messages for a session from the database
+ * @param sessionId The session ID
+ * @returns Array of messages
+ */
+async function getSessionMessages(sessionId: string): Promise<any[]> {
+  try {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching messages:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching session messages:', error);
+    return [];
+  }
+}
+
+/**
+ * Get scores for a session from the database
+ * @param sessionId The session ID
+ * @returns Array of scores
+ */
+async function getSessionScores(sessionId: string): Promise<any[]> {
+  try {
+    const { data, error } = await supabase
+      .from('scores')
+      .select('*')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching scores:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching session scores:', error);
+    return [];
+  }
+}
+
+/**
+ * Get a session by ID from the database
+ * @param sessionId The session ID
+ * @returns The session object or null if not found
+ */
+async function getSessionById(sessionId: string): Promise<any | null> {
+  try {
+    const { data, error } = await supabase
+      .from('sessions')
+      .select('*')
+      .eq('id', sessionId)
+      .single();
+    
+    if (error) {
+      console.error('Error fetching session:', error);
+      return null;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error fetching session:', error);
+    return null;
+  }
+}
+
+/**
+ * Format session data for API response
+ * @param session The session object
+ * @param messages Array of messages
+ * @param scores Array of scores
+ * @returns Formatted session data
+ */
+function formatSessionData(session: any, messages: any[], scores: any[]): any {
+  const totalScore = scores.reduce((sum, score) => sum + score.score, 0);
+  
+  return {
+    id: session.id,
+    startedAt: session.started_at,
+    endedAt: session.ended_at,
+    missionType: session.mission_type,
+    messageCount: messages.length,
+    totalScore,
+  };
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -196,7 +180,7 @@ Deno.serve(async (req) => {
           );
         }
 
-        const session = mockSessions.get(sessionId);
+        const session = await getSessionById(sessionId);
         if (!session) {
           return new Response(JSON.stringify({ error: 'Session not found' }), {
             status: 404,
@@ -207,14 +191,32 @@ Deno.serve(async (req) => {
           });
         }
 
-        const messages = mockMessages.get(sessionId) || [];
-
-        const scores = mockScores.get(sessionId) || [];
+        const messages = await getSessionMessages(sessionId);
+        const scores = await getSessionScores(sessionId);
 
         const exportData = {
-          session,
-          messages,
-          scores,
+          session: {
+            id: session.id,
+            userId: session.user_id,
+            startedAt: session.started_at,
+            endedAt: session.ended_at,
+            missionType: session.mission_type,
+          },
+          messages: messages.map(msg => ({
+            id: msg.id,
+            sessionId: msg.session_id,
+            role: msg.role,
+            content: msg.content,
+            createdAt: msg.created_at,
+          })),
+          scores: scores.map(score => ({
+            id: score.id,
+            sessionId: score.session_id,
+            mission: score.mission,
+            targetWords: score.target_words,
+            success: score.success,
+            score: score.score,
+          })),
           exportedAt: new Date().toISOString(),
         };
 
@@ -281,38 +283,20 @@ Deno.serve(async (req) => {
         );
       }
 
-      const userSessions = Array.from(mockSessions.values())
-        .filter((session) => session.userId === userId)
-        .sort(
-          (a, b) =>
-            new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
-        );
+      const { sessions, totalCount } = await getUserSessions(userId, limit, offset);
 
-      const paginatedSessions = userSessions.slice(offset, offset + limit);
-
-      const formattedSessions = paginatedSessions.map((session) => {
-        const sessionMessages = mockMessages.get(session.id) || [];
-        const sessionScores = mockScores.get(session.id) || [];
-
-        const totalScore = sessionScores.reduce(
-          (sum, score) => sum + score.score,
-          0
-        );
-
-        return {
-          id: session.id,
-          startedAt: session.startedAt,
-          endedAt: session.endedAt,
-          missionType: session.missionType,
-          messageCount: sessionMessages.length,
-          totalScore,
-        };
-      });
+      const formattedSessions = await Promise.all(
+        sessions.map(async (session) => {
+          const messages = await getSessionMessages(session.id);
+          const scores = await getSessionScores(session.id);
+          return formatSessionData(session, messages, scores);
+        })
+      );
 
       return new Response(
         JSON.stringify({
           sessions: formattedSessions,
-          totalCount: userSessions.length,
+          totalCount,
         }),
         {
           headers: {

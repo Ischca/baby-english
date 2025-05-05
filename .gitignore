@@ -5,3 +5,6 @@ node_modules
 .expo-shared
 # Supabase local emulators
 .supabase
+
+.env
+.env.local

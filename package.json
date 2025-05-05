@@ -3,10 +3,14 @@
     "private": true,
     "packageManager": "pnpm@10.10.0",
     "scripts": {
+        "dev": "pnpm -F mobile start",
+        "dev:edge": "cd apps/edge && supabase functions serve --env-file ../../.env.local --no-verify-jwt --import-map ./import_map.json",
+        "dev:all": "concurrently -k \"pnpm dev:edge\" \"pnpm dev\"",
         "lint": "eslint \"{apps,packages}/**/*.{ts,tsx}\"",
         "test": "vitest"
     },
     "devDependencies": {
+        "concurrently": "^9.1.2",
         "eslint": "^9.26.0",
         "prettier": "^3.5.3",
         "vitest": "^3.1.2"

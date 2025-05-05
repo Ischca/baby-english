@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  TextInput, 
-  TouchableOpacity, 
-  FlatList, 
-  KeyboardAvoidingView, 
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
   SafeAreaView
 } from 'react-native';
-import { sendChatMessage } from 'shared/src/api';
+import { sendChatMessage } from '@shared/api';
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Message {
   id: string;
@@ -27,27 +29,27 @@ interface ChatScreenProps {
   onBack: () => void;
 }
 
-export const ChatScreen: React.FC<ChatScreenProps> = ({ 
-  sessionId, 
-  missionType, 
+export const ChatScreen: React.FC<ChatScreenProps> = ({
+  sessionId,
+  missionType,
   onScoreUpdate,
   onBack
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
+
   useEffect(() => {
     const initialMessage: Message = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       content: getInitialMessage(),
       role: 'assistant',
       timestamp: new Date()
     };
-    
+
     setMessages([initialMessage]);
   }, [missionType]);
-  
+
   const getInitialMessage = () => {
     switch (missionType) {
       case 'colors':
@@ -60,21 +62,21 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({
         return "Let's start learning!";
     }
   };
-  
+
   const sendMessage = async () => {
     if (!inputText.trim() || isLoading) return;
 
     const userMessage: Message = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       content: inputText,
       role: 'user',
       timestamp: new Date()
     };
 
     setMessages(prevMessages => [...prevMessages, userMessage]);
-    
+
     setInputText('');
-    
+
     setIsLoading(true);
 
     try {
@@ -84,7 +86,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({
       });
 
       const assistantMessage: Message = {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         content: response.reply,
         role: 'assistant',
         timestamp: new Date()
@@ -97,12 +99,12 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({
       }
     } catch (error) {
       const errorMessage: Message = {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         content: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         role: 'assistant',
         timestamp: new Date()
       };
-      
+
       setMessages(prevMessages => [...prevMessages, errorMessage]);
     } finally {
       setIsLoading(false);
@@ -148,8 +150,8 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({
           onSubmitEditing={sendMessage}
           editable={!isLoading}
         />
-        <TouchableOpacity 
-          style={[styles.sendButton, isLoading && styles.disabledButton]} 
+        <TouchableOpacity
+          style={[styles.sendButton, isLoading && styles.disabledButton]}
           onPress={sendMessage}
           disabled={isLoading}
         >

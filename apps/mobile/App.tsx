@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  StyleSheet, 
-  View, 
+import {
+  StyleSheet,
+  View,
   SafeAreaView,
   TouchableOpacity,
   Text
@@ -11,7 +11,9 @@ import { MissionScreen } from './screens/MissionScreen';
 import { ChatScreen } from './screens/ChatScreen';
 import { SessionsScreen } from './screens/SessionsScreen';
 import { AgeMeter } from './components/age/AgeMeter';
-import { getUser, updateUser } from 'shared/src/api';
+import { getUser, updateUser } from '@shared/api';
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 
 type MissionType = 'colors' | 'numbers' | 'greetings';
 type AppScreen = 'missions' | 'chat' | 'sessions';
@@ -47,12 +49,12 @@ export function App() {
   const [isLevelingUp, setIsLevelingUp] = useState(false);
 
   useEffect(() => {
-    const newSessionId = crypto.randomUUID();
-    const newUserId = crypto.randomUUID();
-    
+    const newSessionId = uuidv4();
+    const newUserId = uuidv4();
+
     setSessionId(newSessionId);
     setUserId(newUserId);
-    
+
     const fetchUser = async () => {
       try {
         const userData = await getUser(newUserId);
@@ -62,14 +64,14 @@ export function App() {
         setAgeLevel(0);
       }
     };
-    
+
     fetchUser();
   }, []);
 
   useEffect(() => {
     if (totalScore > 0 && ageLevel < 18) {
       const nextLevelThreshold = AGE_LEVEL_THRESHOLDS[ageLevel];
-      
+
       if (nextLevelThreshold && totalScore >= nextLevelThreshold) {
         handleLevelUp();
       }
@@ -79,14 +81,14 @@ export function App() {
   const handleLevelUp = useCallback(async () => {
     if (ageLevel < 18) {
       setIsLevelingUp(true);
-      
+
       try {
         const newAgeLevel = ageLevel + 1;
         await updateUser({
           userId,
           ageLevel: newAgeLevel
         });
-        
+
       } catch (error) {
         console.error('Error updating user age level:', error);
         setIsLevelingUp(false);
@@ -123,32 +125,32 @@ export function App() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <AgeMeter 
-          ageLevel={ageLevel} 
+        <AgeMeter
+          ageLevel={ageLevel}
           isLevelingUp={isLevelingUp}
           onAnimationComplete={handleAnimationComplete}
         />
         {currentScreen === 'missions' && (
-          <TouchableOpacity 
-            style={styles.historyButton} 
+          <TouchableOpacity
+            style={styles.historyButton}
             onPress={handleViewSessions}
           >
             <Text style={styles.historyButtonText}>View History</Text>
           </TouchableOpacity>
         )}
       </View>
-      
+
       {currentScreen === 'missions' ? (
         <MissionScreen onStartChat={handleStartChat} />
       ) : currentScreen === 'chat' ? (
-        <ChatScreen 
+        <ChatScreen
           sessionId={sessionId}
           missionType={activeMission}
           onScoreUpdate={handleScoreUpdate}
           onBack={handleBackToMissions}
         />
       ) : (
-        <SessionsScreen 
+        <SessionsScreen
           userId={userId}
           onBack={handleBackFromSessions}
         />

@@ -10,7 +10,7 @@ import {
   Share,
   Platform
 } from 'react-native';
-import { getSessions, exportSession, SessionDetails } from 'shared/src/api';
+import { getSessions, exportSession, SessionDetails } from '@shared/api';
 
 interface SessionsScreenProps {
   userId: string;
@@ -36,24 +36,24 @@ export const SessionsScreen: React.FC<SessionsScreenProps> = ({ userId, onBack }
         setPage(0);
         setLoading(true);
       }
-      
+
       const currentPage = refresh ? 0 : page;
-      
+
       const response = await getSessions({
         userId,
         limit: PAGE_SIZE,
         offset: currentPage * PAGE_SIZE
       });
-      
+
       if (refresh) {
         setSessions(response.sessions);
       } else {
         setSessions(prev => [...prev, ...response.sessions]);
       }
-      
+
       setTotalCount(response.totalCount);
       setHasMore(response.sessions.length === PAGE_SIZE);
-      
+
       if (!refresh) {
         setPage(currentPage + 1);
       }
@@ -82,12 +82,12 @@ export const SessionsScreen: React.FC<SessionsScreenProps> = ({ userId, onBack }
   const handleExport = async (sessionId: string) => {
     try {
       setExporting(true);
-      
+
       const response = await exportSession({
         sessionId,
         format: 'json'
       });
-      
+
       if (Platform.OS === 'web') {
         window.open(response.exportUrl, '_blank');
       } else {
@@ -135,7 +135,7 @@ export const SessionsScreen: React.FC<SessionsScreenProps> = ({ userId, onBack }
         </Text>
         <Text style={styles.date}>{formatDate(item.startedAt)}</Text>
       </View>
-      
+
       <View style={styles.sessionStats}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{item.messageCount}</Text>
@@ -152,7 +152,7 @@ export const SessionsScreen: React.FC<SessionsScreenProps> = ({ userId, onBack }
           <Text style={styles.statLabel}>Minutes</Text>
         </View>
       </View>
-      
+
       <TouchableOpacity
         style={styles.exportButton}
         onPress={() => handleExport(item.id)}
@@ -165,7 +165,7 @@ export const SessionsScreen: React.FC<SessionsScreenProps> = ({ userId, onBack }
 
   const renderFooter = () => {
     if (!loading) return null;
-    
+
     return (
       <View style={styles.footer}>
         <ActivityIndicator size="small" color="#4a86e8" />
@@ -175,7 +175,7 @@ export const SessionsScreen: React.FC<SessionsScreenProps> = ({ userId, onBack }
 
   const renderEmpty = () => {
     if (loading) return null;
-    
+
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyText}>No learning sessions found</Text>
@@ -193,7 +193,7 @@ export const SessionsScreen: React.FC<SessionsScreenProps> = ({ userId, onBack }
         <Text style={styles.title}>Learning History</Text>
         <View style={styles.placeholder} />
       </View>
-      
+
       <FlatList
         data={sessions}
         renderItem={renderItem}
@@ -206,7 +206,7 @@ export const SessionsScreen: React.FC<SessionsScreenProps> = ({ userId, onBack }
         onRefresh={handleRefresh}
         refreshing={loading && page === 0}
       />
-      
+
       {exporting && (
         <View style={styles.exportingOverlay}>
           <ActivityIndicator size="large" color="#fff" />

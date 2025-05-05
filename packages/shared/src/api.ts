@@ -4,7 +4,7 @@ export const API_ENDPOINTS = {
   CHAT: '/chat',
   MISSIONS: '/missions',
   USER: '/user',
-  SESSIONS: '/sessions'
+  SESSIONS: '/sessions',
 };
 
 export enum ApiErrorType {
@@ -12,45 +12,61 @@ export enum ApiErrorType {
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   SERVER_ERROR = 'SERVER_ERROR',
   UNAUTHORIZED = 'UNAUTHORIZED',
-  FORBIDDEN_VOCABULARY = 'FORBIDDEN_VOCABULARY'
+  FORBIDDEN_VOCABULARY = 'FORBIDDEN_VOCABULARY',
 }
 
 export class ApiError extends Error {
   type: ApiErrorType;
   status: number | undefined;
-  
-  constructor(message: string, type: ApiErrorType, status?: number) {
+  details?: unknown;
+
+  constructor(
+    message: string,
+    type: ApiErrorType,
+    status?: number,
+    details?: unknown
+  ) {
     super(message);
     this.type = type;
     this.status = status;
+    this.details = details;
     this.name = 'ApiError';
   }
 }
 
 export async function fetchApi<T>(
-  endpoint: string, 
+  endpoint: string,
   method: 'GET' | 'POST' = 'GET',
   body?: unknown
 ): Promise<T> {
   const baseUrl = 'http://127.0.0.1:54321/functions/v1';
-  
+
   try {
     const options: RequestInit = {
       method,
       headers: {
         'Content-Type': 'application/json',
-      }
+        Authorization: 'Bearer anonymous',
+      },
     };
-    
+
     if (body) {
       options.body = JSON.stringify(body);
     }
-    
+
     const response = await fetch(`${baseUrl}${endpoint}`, options);
-    
+
     if (!response.ok) {
       let errorType = ApiErrorType.SERVER_ERROR;
-      
+      let errorDetails: unknown;
+
+      // Try to parse error response as JSON to get more details
+      try {
+        errorDetails = await response.json();
+      } catch {
+        errorDetails = response.statusText || 'Unknown error';
+      }
+
       if (response.status === 401) {
         errorType = ApiErrorType.UNAUTHORIZED;
       } else if (response.status === 400) {
@@ -58,28 +74,35 @@ export async function fetchApi<T>(
       } else if (response.status === 403) {
         errorType = ApiErrorType.FORBIDDEN_VOCABULARY;
       }
-      
+
       throw new ApiError(
-        `API error: ${response.statusText}`,
+        `API error: ${JSON.stringify(errorDetails)}`,
         errorType,
-        response.status
+        response.status,
+        errorDetails
       );
     }
-    
-    return await response.json() as T;
+
+    return (await response.json()) as T;
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;
     }
-    
+
+    console.error('Fetch error:', error);
+
     throw new ApiError(
-      `Network error: ${(error as Error).message}`,
-      ApiErrorType.NETWORK_ERROR
+      `Network error: ${(error as Error).message || 'Unknown error'}`,
+      ApiErrorType.NETWORK_ERROR,
+      undefined,
+      error
     );
   }
 }
 
-export async function sendChatMessage(request: ChatRequest): Promise<ChatResponse> {
+export async function sendChatMessage(
+  request: ChatRequest
+): Promise<ChatResponse> {
   return fetchApi<ChatResponse>(API_ENDPOINTS.CHAT, 'POST', request);
 }
 
@@ -113,7 +136,9 @@ export async function getUser(userId: string): Promise<UserResponse> {
   return fetchApi<UserResponse>(`${API_ENDPOINTS.USER}?userId=${userId}`);
 }
 
-export async function updateUser(request: UserUpdateRequest): Promise<UserResponse> {
+export async function updateUser(
+  request: UserUpdateRequest
+): Promise<UserResponse> {
   return fetchApi<UserResponse>(API_ENDPOINTS.USER, 'POST', request);
 }
 
@@ -148,14 +173,18 @@ export interface SessionExportResponse {
   format: string;
 }
 
-export async function getSessions(request: SessionListRequest): Promise<SessionListResponse> {
+export async function getSessions(
+  request: SessionListRequest
+): Promise<SessionListResponse> {
   const { userId, limit = 10, offset = 0 } = request;
   return fetchApi<SessionListResponse>(
     `${API_ENDPOINTS.SESSIONS}?userId=${userId}&limit=${limit}&offset=${offset}`
   );
 }
 
-export async function exportSession(request: SessionExportRequest): Promise<SessionExportResponse> {
+export async function exportSession(
+  request: SessionExportRequest
+): Promise<SessionExportResponse> {
   return fetchApi<SessionExportResponse>(
     `${API_ENDPOINTS.SESSIONS}/export`,
     'POST',

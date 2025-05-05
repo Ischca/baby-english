@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { MissionTab } from '../components/mission/MissionTab';
 import { MissionDetails } from '../components/mission/MissionDetails';
-import { getMissions, Mission } from 'shared/src/api';
+import { getMissions, Mission } from '@shared/api';
 
 type MissionType = 'colors' | 'numbers' | 'greetings';
 
@@ -15,7 +15,7 @@ export const MissionScreen: React.FC<MissionScreenProps> = ({ onStartChat }) => 
   const [missions, setMissions] = useState<Mission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     const fetchMissions = async () => {
       try {
@@ -30,23 +30,23 @@ export const MissionScreen: React.FC<MissionScreenProps> = ({ onStartChat }) => 
         setIsLoading(false);
       }
     };
-    
+
     fetchMissions();
   }, []);
-  
+
   const handleMissionChange = (mission: MissionType) => {
     setActiveMission(mission);
   };
-  
+
   const handleStartMission = (missionType: string) => {
     onStartChat(missionType as MissionType);
   };
-  
+
   const getActiveMissionVocabulary = () => {
     const mission = missions.find(m => m.id === activeMission);
     return mission ? mission.vocabulary : [];
   };
-  
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -55,7 +55,7 @@ export const MissionScreen: React.FC<MissionScreenProps> = ({ onStartChat }) => 
       </View>
     );
   }
-  
+
   if (error) {
     return (
       <View style={styles.errorContainer}>
@@ -63,37 +63,37 @@ export const MissionScreen: React.FC<MissionScreenProps> = ({ onStartChat }) => 
       </View>
     );
   }
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Baby English</Text>
       </View>
-      
+
       <View style={styles.tabContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <MissionTab 
-            title="Colors" 
-            isActive={activeMission === 'colors'} 
-            onPress={() => handleMissionChange('colors')} 
+          <MissionTab
+            title="Colors"
+            isActive={activeMission === 'colors'}
+            onPress={() => handleMissionChange('colors')}
           />
-          <MissionTab 
-            title="Numbers" 
-            isActive={activeMission === 'numbers'} 
-            onPress={() => handleMissionChange('numbers')} 
+          <MissionTab
+            title="Numbers"
+            isActive={activeMission === 'numbers'}
+            onPress={() => handleMissionChange('numbers')}
           />
-          <MissionTab 
-            title="Greetings" 
-            isActive={activeMission === 'greetings'} 
-            onPress={() => handleMissionChange('greetings')} 
+          <MissionTab
+            title="Greetings"
+            isActive={activeMission === 'greetings'}
+            onPress={() => handleMissionChange('greetings')}
           />
         </ScrollView>
       </View>
-      
-      <MissionDetails 
+
+      <MissionDetails
         missionType={activeMission}
         vocabulary={getActiveMissionVocabulary()}
-        onStartMission={handleStartMission} 
+        onStartMission={handleStartMission}
       />
     </View>
   );

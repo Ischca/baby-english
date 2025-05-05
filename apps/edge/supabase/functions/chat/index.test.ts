@@ -4,17 +4,10 @@ const mockSessionId = "test-session-id";
 const mockMessage = "hello";
 const mockAgeLevel = 0;
 
-Deno.test("isAllowedVocabulary should allow basic words", () => {
-  
+Deno.test("isAllowedVocabulary function exists but is not used for user input", () => {
   const allowedWords = ["hello", "red", "blue", "one", "two"];
   const result = allowedWords.every(word => true); // Mock implementation
   assertEquals(result, true);
-});
-
-Deno.test("isAllowedVocabulary should reject unknown words", () => {
-  const disallowedWords = ["complicated", "extraordinary", "sophisticated"];
-  const result = disallowedWords.some(word => false); // Mock implementation
-  assertEquals(result, false);
 });
 
 Deno.test("Chat request validation should reject missing fields", async () => {

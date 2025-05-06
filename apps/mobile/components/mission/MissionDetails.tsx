@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { Button } from '../../design/components/Button';
+import { StartIcon } from './icons';
 
 interface MissionDetailsProps {
   missionType: 'colors' | 'numbers' | 'greetings';
@@ -60,12 +62,13 @@ export const MissionDetails: React.FC<MissionDetailsProps> = ({
         />
       </View>
       
-      <TouchableOpacity 
-        style={styles.startButton}
+      <Button 
+        label="Start Mission"
+        icon={<StartIcon size={24} />}
         onPress={() => onStartMission(missionType)}
-      >
-        <Text style={styles.startButtonText}>Start Mission</Text>
-      </TouchableOpacity>
+        style={styles.startButton}
+        textStyle={styles.startButtonText}
+      />
     </View>
   );
 };

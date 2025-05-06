@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Button } from '../../design/components/Button';
+import { ColorIcon, NumberIcon, GreetingIcon } from './icons';
 
 interface MissionTabProps {
   title: string;
@@ -12,15 +14,27 @@ export const MissionTab: React.FC<MissionTabProps> = ({
   isActive, 
   onPress 
 }) => {
+  const getIcon = () => {
+    switch (title.toLowerCase()) {
+      case 'colors':
+        return <ColorIcon size={24} color={isActive ? '#ffffff' : '#666'} />;
+      case 'numbers':
+        return <NumberIcon size={24} color={isActive ? '#ffffff' : '#666'} />;
+      case 'greetings':
+        return <GreetingIcon size={24} color={isActive ? '#ffffff' : '#666'} />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <TouchableOpacity 
-      style={[styles.tab, isActive && styles.activeTab]} 
+    <Button
+      label={title}
+      icon={getIcon()}
       onPress={onPress}
-    >
-      <Text style={[styles.tabText, isActive && styles.activeTabText]}>
-        {title}
-      </Text>
-    </TouchableOpacity>
+      style={isActive ? {...styles.tab, ...styles.activeTab} : styles.tab}
+      textStyle={isActive ? {...styles.tabText, ...styles.activeTabText} : styles.tabText}
+    />
   );
 };
 

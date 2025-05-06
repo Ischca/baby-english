@@ -7,11 +7,12 @@ import {
   TouchableOpacity,
   Text
 } from 'react-native';
-import { MissionScreen } from './screens/MissionScreen';
+import { MainScreen } from './screens/MainScreen';
 import { ChatScreen } from './screens/ChatScreen';
 import { SessionsScreen } from './screens/SessionsScreen';
 import { AgeMeter } from './components/age/AgeMeter';
 import { getUser, updateUser } from '@shared/api';
+import { AgeThemeProvider } from './design';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -123,26 +124,27 @@ export function App() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <AgeMeter
-          ageLevel={ageLevel}
-          isLevelingUp={isLevelingUp}
-          onAnimationComplete={handleAnimationComplete}
-        />
-        {currentScreen === 'missions' && (
-          <TouchableOpacity
-            style={styles.historyButton}
-            onPress={handleViewSessions}
-          >
-            <Text style={styles.historyButtonText}>View History</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+    <AgeThemeProvider initialAgeLevel={ageLevel}>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <AgeMeter
+            ageLevel={ageLevel}
+            isLevelingUp={isLevelingUp}
+            onAnimationComplete={handleAnimationComplete}
+          />
+          {currentScreen === 'missions' && (
+            <TouchableOpacity
+              style={styles.historyButton}
+              onPress={handleViewSessions}
+            >
+              <Text style={styles.historyButtonText}>View History</Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
-      {currentScreen === 'missions' ? (
-        <MissionScreen onStartChat={handleStartChat} />
-      ) : currentScreen === 'chat' ? (
+        {currentScreen === 'missions' ? (
+          <MainScreen onStartChat={handleStartChat} />
+        ) : currentScreen === 'chat' ? (
         <ChatScreen
           sessionId={sessionId}
           missionType={activeMission}
@@ -157,6 +159,7 @@ export function App() {
       )}
       <StatusBar style="auto" />
     </SafeAreaView>
+    </AgeThemeProvider>
   );
 }
 

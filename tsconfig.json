@@ -1,0 +1,24 @@
+{
+  "extends": "./apps/mobile/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "exactOptionalPropertyTypes": true,
+    "moduleResolution": "bundler",
+    "types": ["node", "react"],
+    "lib": ["ES2022", "DOM"],
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "apps/mobile/app/**/*.tsx",
+    "apps/mobile/src/**/*",
+    "packages/shared/src/learning/**/*",
+    "packages/shared/src/coach.ts",
+    "packages/shared/src/cloud.ts",
+    "apps/edge/supabase/functions/_shared/handler.ts",
+    "apps/edge/supabase/functions/_shared/handler.test.ts",
+    "tests/**/*",
+    "playwright.config.ts",
+    "vitest.config.ts"
+  ]
+}

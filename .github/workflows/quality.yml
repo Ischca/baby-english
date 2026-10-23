@@ -5,9 +5,13 @@ on:
     branches: [main]
 permissions:
   contents: read
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   learning:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -23,7 +27,15 @@ jobs:
       - run: pnpm test:coverage
       - run: pnpm test:migrations
       - run: pnpm build
-      - run: pnpm exec playwright install --with-deps chromium
+      - name: Prepare browser
+        timeout-minutes: 5
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            google-chrome --version
+            echo "PLAYWRIGHT_CHANNEL=chrome" >> "$GITHUB_ENV"
+          else
+            pnpm exec playwright install --with-deps chromium
+          fi
       - run: pnpm e2e:ci
       - uses: actions/upload-artifact@v4
         with:
@@ -36,6 +48,7 @@ jobs:
           path: test-results
   edge:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

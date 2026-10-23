@@ -5,6 +5,9 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   use: {
     baseURL: "http://127.0.0.1:4173",
+    ...(process.env.PLAYWRIGHT_CHANNEL
+      ? { channel: process.env.PLAYWRIGHT_CHANNEL }
+      : {}),
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },

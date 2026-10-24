@@ -105,7 +105,7 @@ export function FeedbackMessage({
 }) {
   const corrected =
     normalizeAnswer(turn.feedback.recast) !== normalizeAnswer(turn.answer);
-  if (compact && turn.feedback.accepted)
+  if (compact && turn.feedback.accepted && !corrected)
     return (
       <XStack justifyContent="flex-end" alignItems="center" gap={4}>
         <Icon name="checkmark-done" size={14} color={c.green} />

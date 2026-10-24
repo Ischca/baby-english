@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { Button, Text, XStack, YStack } from "tamagui";
+import Svg, { Path } from "react-native-svg";
 import { missions, stageNames } from "@shared/learning/curriculum";
 import { isUnlocked, recommendedMission } from "@shared/learning/engine";
 import { useLearning } from "../../src/store";
@@ -151,13 +152,22 @@ export default function Journey() {
                       </YStack>
                     </XStack>
                     {index < 2 && (
-                      <YStack
-                        marginLeft={42}
-                        height={26}
-                        borderLeftWidth={4}
-                        borderStyle="dotted"
-                        borderColor={c.line}
-                      />
+                      <YStack marginLeft={index === 0 ? 42 : 8} height={26}>
+                        <Svg width={40} height={26} viewBox="0 0 40 26">
+                          <Path
+                            d={
+                              index === 0
+                                ? "M2 0C2 13 36 13 36 26"
+                                : "M36 0C36 13 2 13 2 26"
+                            }
+                            fill="none"
+                            stroke={c.line}
+                            strokeWidth={4}
+                            strokeDasharray="2 7"
+                            strokeLinecap="round"
+                          />
+                        </Svg>
+                      </YStack>
                     )}
                   </YStack>
                 );

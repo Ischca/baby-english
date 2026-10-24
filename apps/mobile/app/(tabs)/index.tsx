@@ -11,7 +11,7 @@ import {
 import { getMission } from "@shared/learning/curriculum";
 import { useLearning } from "../../src/store";
 import { Action, Body, Icon, Meter } from "../../src/kit";
-import { PartnerAvatar, SceneArt, StatPill } from "../../src/game";
+import { BabyMascot, PartnerAvatar, SceneArt, StatPill } from "../../src/game";
 import { World } from "../../src/World";
 import { palette as c } from "../../src/theme";
 
@@ -99,6 +99,9 @@ export default function Today() {
               </Text>
             </YStack>
           </XStack>
+          <YStack position="absolute" bottom={82} left="20%">
+            <BabyMascot size={width < 480 ? 142 : 168} />
+          </YStack>
           <XStack
             position="absolute"
             bottom={31}
@@ -109,7 +112,7 @@ export default function Today() {
           >
             <PartnerAvatar name={scene.partner} size={46} />
             <YStack
-              flex={1}
+              flexShrink={1}
               backgroundColor="rgba(255,255,255,0.96)"
               borderRadius={18}
               borderBottomLeftRadius={5}

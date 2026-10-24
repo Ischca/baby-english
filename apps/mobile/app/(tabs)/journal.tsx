@@ -89,10 +89,20 @@ export default function Journal() {
                         })}
                       </Text>
                     </XStack>
-                    <Text fontSize={14} color={c.ink} numberOfLines={1}>
+                    <Text
+                      textAlign="left"
+                      fontSize={14}
+                      color={c.ink}
+                      numberOfLines={1}
+                    >
                       {scene?.title ?? item.missionId}
                     </Text>
-                    <Text fontSize={12} color={c.muted} numberOfLines={1}>
+                    <Text
+                      textAlign="left"
+                      fontSize={12}
+                      color={c.muted}
+                      numberOfLines={1}
+                    >
                       {item.turns.at(-1)?.answer ?? "会話を完了"}
                     </Text>
                     <XStack gap={5} alignItems="center">

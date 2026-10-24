@@ -60,7 +60,7 @@ function ArtLayer({
   );
 }
 
-/** A small native vector rig: feet, body, arm, head and eyelids have independent pivots. */
+/** A seated illustration: the forearm pivots at the elbow, the head at the neck. */
 export function BabyMascot({ size = 150 }: { size?: number }) {
   const breath = useRef(new Animated.Value(0)).current;
   const tilt = useRef(new Animated.Value(0)).current;
@@ -197,8 +197,8 @@ export function BabyMascot({ size = 150 }: { size?: number }) {
     }, 2200);
   }
   const armAngle = Animated.add(arm, wave).interpolate({
-    inputRange: [-1, 1],
-    outputRange: ["-25deg", "25deg"],
+    inputRange: [-1, 0, 1],
+    outputRange: ["-16deg", "0deg", "8deg"],
   });
   const lift = Animated.add(
     breath.interpolate({ inputRange: [0, 1], outputRange: [0, -1.8 * scale] }),
@@ -237,34 +237,82 @@ export function BabyMascot({ size = 150 }: { size?: number }) {
           { transform: [{ translateY: lift }] },
         ]}
       >
-        <ArtLayer size={size}>
+        {/* The forearm sits behind its sleeve so the elbow stays covered while waving. */}
+        <ArtLayer
+          size={size}
+          testID="mascot-arm"
+          style={{
+            transform: [
+              { translateX: -47 * scale },
+              { translateY: 35 * scale },
+              { rotate: armAngle },
+              { translateX: 47 * scale },
+              { translateY: -35 * scale },
+            ],
+          }}
+        >
           <G {...line}>
+            {/* Four fingers and an inward-facing thumb, joined to a single palm. */}
             <Path
-              d="M92 167C74 165 53 178 49 195C45 211 60 221 80 215L117 198Z"
-              fill={green}
-            />
-            <Path
-              d="M150 166C171 164 192 180 195 196C198 213 184 222 165 216L128 198Z"
-              fill="#92B89D"
-            />
-            <Path
-              d="M87 144C73 139 68 146 72 164L83 181L99 169Z"
-              fill={cream}
-            />
-            <Path
-              d="M154 143C169 140 176 149 178 166L164 178L151 167Z"
-              fill={cream}
-            />
-            <Path
-              d="M174 162C185 164 190 175 185 182C181 190 166 185 163 177L164 168"
+              d="M49 134C44 132 40 129 38 124L32 114C29 110 30 107 33 107C35 107 36 110 39 114L35 104C34 100 36 98 38 99C41 99 42 104 44 110L42 100C42 97 44 95 47 96C50 97 50 104 51 110L52 102C53 98 57 99 58 102L58 116L62 112C65 110 68 113 66 116L61 125C59 130 57 133 56 135C63 141 69 147 77 151C81 155 78 162 72 163C64 166 54 149 49 134Z"
               fill={skin}
             />
             <Path
-              d="M94 135C98 129 143 128 150 136L165 175C174 197 153 208 124 208C92 208 72 197 81 176Z"
+              d="M57 118Q52 118 51 123"
+              fill="none"
+              stroke="#C99770"
+              strokeWidth={1.8}
+            />
+          </G>
+        </ArtLayer>
+        <ArtLayer size={size}>
+          <G {...line}>
+            {/* One short sleeve connects the raised forearm to its shoulder. */}
+            <Path
+              d="M93 138C84 136 76 141 70 149L68 154Q71 160 78 162L97 148Z"
+              fill={cream}
+            />
+            <Path
+              d="M70 149Q75 155 82 156"
+              fill="none"
+              stroke="#D8C7A6"
+              strokeWidth={2}
+            />
+            <Path d="M109 128V143Q123 151 136 143V128" fill={skin} />
+            {/* The torso and both bent trouser legs share one continuous silhouette. */}
+            <Path
+              d="M98 134Q122 127 146 134L160 173C177 172 188 182 189 195C190 207 179 215 165 212L139 205Q122 211 105 205L79 212C65 215 53 207 53 196C53 184 66 174 84 174Z"
               fill={green}
             />
             <Path
-              d="M98 139L92 162M146 139L152 162"
+              d="M92 180Q84 185 80 196M152 180Q161 185 164 196"
+              fill="none"
+              stroke="#789580"
+              strokeWidth={2.2}
+            />
+            {/* The other arm rests alongside the body, with its hand over the knee. */}
+            <Path
+              d="M159 156C162 164 164 170 164 175C159 174 157 177 160 181L164 186C169 191 178 190 181 184C185 177 177 163 173 155Z"
+              fill={skin}
+            />
+            <Path
+              d="M149 138C161 137 170 145 174 155Q170 162 159 163L148 151Z"
+              fill={cream}
+            />
+            <Path
+              d="M159 157Q166 157 172 153"
+              fill="none"
+              stroke="#D8C7A6"
+              strokeWidth={2}
+            />
+            <Path
+              d="M169 180L171 184M175 178L177 182"
+              fill="none"
+              stroke="#C99770"
+              strokeWidth={1.8}
+            />
+            <Path
+              d="M98 139L94 160M146 139L150 160"
               fill="none"
               stroke="#749A80"
               strokeWidth={8}
@@ -277,52 +325,33 @@ export function BabyMascot({ size = 150 }: { size?: number }) {
               stroke="#789580"
               strokeWidth={2}
             />
-            <Path d="M101 130Q121 141 146 130L123 158Z" fill="#EFB278" />
+            <Path d="M101 130Q121 141 146 130L123 153Z" fill="#EFB278" />
             <Path
               d="M105 136L122 145L140 136"
               stroke="#D99962"
               strokeWidth={2}
               fill="none"
             />
+            {/* Short cuffs overlap the shoes, with both soles on the same ground plane. */}
+            <Path d="M66 195Q78 192 87 202L82 211L61 206Z" fill="#92B89D" />
             <Path
-              d="M54 190C41 192 37 210 50 219C63 228 85 220 88 207C90 196 67 186 54 190Z"
+              d="M176 195Q164 192 155 202L160 211L181 206Z"
+              fill="#92B89D"
+            />
+            <Path
+              d="M58 201C47 201 41 211 49 220C57 228 77 226 85 217C91 209 80 201 73 200Q65 198 58 201Z"
               fill={cream}
             />
             <Path
-              d="M186 190C199 193 203 211 190 219C177 228 156 220 154 207C152 196 173 186 186 190Z"
+              d="M184 201C195 201 201 211 193 220C185 228 165 226 157 217C151 209 162 201 169 200Q177 198 184 201Z"
               fill={cream}
             />
             <Path
-              d="M46 211Q63 222 82 210M161 211Q178 222 195 210"
+              d="M48 215Q62 224 82 214M160 214Q180 224 194 215"
               fill="none"
               stroke="#C8AB83"
               strokeWidth={2}
             />
-          </G>
-        </ArtLayer>
-        <ArtLayer
-          size={size}
-          testID="mascot-arm"
-          style={{
-            transform: [
-              { translateX: -41 * scale },
-              { translateY: 30 * scale },
-              { rotate: armAngle },
-              { translateX: 41 * scale },
-              { translateY: -30 * scale },
-            ],
-          }}
-        >
-          <G {...line}>
-            <Path
-              d="M82 145C72 139 67 130 63 122L49 127C50 143 60 157 73 163Z"
-              fill={cream}
-            />
-            <Path
-              d="M58 130C48 132 40 124 39 117C38 112 42 110 45 113L47 115L44 105C43 100 48 98 51 103L55 110L54 98C54 94 60 94 61 99L63 110L66 103C68 100 73 102 71 107L68 121C67 127 63 130 58 130Z"
-              fill={skin}
-            />
-            <Path d="M52 134L64 129" stroke="#D8C7A6" strokeWidth={2} />
           </G>
         </ArtLayer>
         <Animated.View
@@ -332,12 +361,16 @@ export function BabyMascot({ size = 150 }: { size?: number }) {
             StyleSheet.absoluteFillObject,
             {
               transform: [
+                { translateX: 2 * scale },
+                { translateY: 13 * scale },
                 {
                   rotate: tilt.interpolate({
                     inputRange: [-1, 1],
                     outputRange: ["-1.8deg", "1.8deg"],
                   }),
                 },
+                { translateX: -2 * scale },
+                { translateY: -13 * scale },
               ],
             },
           ]}

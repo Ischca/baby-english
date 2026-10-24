@@ -196,3 +196,32 @@ test("placement begins at a useful chapter and later chapters remain locked", as
     page.getByRole("button", { name: "前の章をクリア" }).first(),
   ).toBeDisabled();
 });
+
+test("illustrated mascot responds to a greeting and respects reduced motion", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await onboard(page);
+  const pose = page.getByTestId("mascot-pose");
+  const initial = await pose.getAttribute("style");
+  await expect.poll(() => pose.getAttribute("style")).not.toBe(initial);
+  await page
+    .getByRole("button", { name: "赤ちゃんにあいさつ", exact: true })
+    .click();
+  await expect(page.getByTestId("mascot-greeting")).toHaveText("Hello!");
+  await expect(page.getByTestId("mascot-greeting")).toBeHidden({
+    timeout: 4000,
+  });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(pose).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)");
+  await page
+    .getByRole("button", { name: "赤ちゃんにあいさつ", exact: true })
+    .click();
+  await expect(page.getByTestId("mascot-greeting")).toHaveText("Hello!");
+  await expect(page.getByTestId("mascot-greeting")).toBeHidden({
+    timeout: 4000,
+  });
+  await expect(pose).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)");
+  await page.getByRole("tab", { name: "Journey" }).click();
+  await expect(page.getByTestId("baby-mascot")).toBeHidden();
+});

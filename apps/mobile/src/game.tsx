@@ -8,29 +8,7 @@ import { Icon, type IconName } from "./kit";
 // Metro requires a static asset reference for both native and web bundles.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 export const worldArtwork = require("../assets/game/world-garden.png");
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const babyArtwork = require("../assets/game/baby-avatar.png");
-export function BabyMascot({ size = 150 }: { size?: number }) {
-  return (
-    <YStack width={size} height={size} alignItems="center">
-      <YStack
-        position="absolute"
-        bottom={2}
-        width={size * 0.65}
-        height={size * 0.09}
-        borderRadius={100}
-        backgroundColor="rgba(49,83,42,0.19)"
-      />
-      <Image
-        source={babyArtwork}
-        accessibilityLabel="手を振るBaby Englishのキャラクター"
-        accessibilityIgnoresInvertColors
-        resizeMode="contain"
-        style={{ width: size, height: size }}
-      />
-    </YStack>
-  );
-}
+export { BabyMascot } from "./BabyMascot";
 export function SceneArt({ height = 300 }: { height?: number }) {
   return (
     <Image

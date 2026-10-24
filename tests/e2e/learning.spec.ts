@@ -197,7 +197,7 @@ test("placement begins at a useful chapter and later chapters remain locked", as
   ).toBeDisabled();
 });
 
-test("illustrated mascot responds to a greeting and respects reduced motion", async ({
+test("illustrated mascot greets, respects reduced motion and pauses off screen", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
@@ -222,6 +222,14 @@ test("illustrated mascot responds to a greeting and respects reduced motion", as
     timeout: 4000,
   });
   await expect(pose).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)");
+  const restingPose = await pose.getAttribute("style");
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await expect.poll(() => pose.getAttribute("style")).not.toBe(restingPose);
   await page.getByRole("tab", { name: "Journey" }).click();
-  await expect(page.getByTestId("baby-mascot")).toBeHidden();
+  await expect(
+    page.getByRole("button", { name: "赤ちゃんにあいさつ", exact: true }),
+  ).toHaveCount(0);
+  await expect(pose).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)");
+  await page.getByRole("tab", { name: "Today" }).click();
+  await expect.poll(() => pose.getAttribute("style")).not.toBe(restingPose);
 });

@@ -1,11 +1,17 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { XStack, YStack } from "tamagui";
+import { Text, XStack, YStack } from "tamagui";
 import { getMission } from "@shared/learning/curriculum";
 import { englishAge } from "@shared/learning/engine";
 import { useLearning } from "../src/store";
-import { Action, Body, Frame, Label, Panel, Title } from "../src/kit";
+import { Action, Body, Frame, Label } from "../src/kit";
 import { World } from "../src/World";
-import { speak } from "../src/speech";
+import { PopIn, RewardStars, StatPill } from "../src/game";
+import {
+  TutorMessage,
+  LearnerMessage,
+  FeedbackMessage,
+} from "../src/conversation";
+import { palette as c } from "../src/theme";
 
 export default function Result() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -14,70 +20,67 @@ export default function Result() {
   const mission = result && getMission(result.missionId);
   if (!result || !mission)
     return (
-      <Frame title="Your story is still beginning." back>
+      <Frame title="会話の思い出" back>
         <Body>この記録は見つかりませんでした。</Body>
       </Frame>
     );
   return (
-    <Frame
-      title={
-        result.passed
-          ? "Look how far you have come."
-          : "One little step forward."
-      }
-      eyebrow="YOUR REFLECTION"
-      back
-    >
-      <World age={englishAge(progress)} />
-      <Panel tone="green">
-        <Title small>
-          {result.passed
-            ? `${mission.skill}、できました。`
-            : "表現に出会えたことも、一歩。"}
-        </Title>
-        <Body>
-          {result.passed
-            ? "例文を見ずに、別の場面でも表現できました。"
-            : "例文を確認したら、もう一度。最後の2つをヒントなしで使えるとクリアです。"}
-        </Body>
-        <XStack gap={22}>
-          <Label>{result.score}% MATCH</Label>
-          <Label>+{result.xp} XP</Label>
-          <Label>AGE {englishAge(progress)}</Label>
-        </XStack>
-      </Panel>
-      <YStack gap={14}>
-        <Title small>Take these words with you.</Title>
+    <Frame title="今日の一歩" back>
+      <PopIn>
+        <YStack alignItems="center" gap={18} paddingTop={10} paddingBottom={6}>
+          <RewardStars complete={result.passed} />
+          <World age={englishAge(progress)} portrait size={92} />
+          <Text
+            fontSize={23}
+            lineHeight={32}
+            fontWeight="800"
+            color={c.ink}
+            textAlign="center"
+          >
+            {result.passed
+              ? `${mission.skill}、できました。`
+              : "表現に出会えたことも、一歩。"}
+          </Text>
+          <Body small muted>
+            {result.passed
+              ? "例文を見ずに、別の場面でも表現できました。"
+              : "最後の2つをヒントなしで使えるとクリアです。"}
+          </Body>
+          <XStack gap={9}>
+            <StatPill icon="sparkles" value={`+${result.xp} XP`} warm />
+            <StatPill icon="leaf" value={`AGE ${englishAge(progress)}`} />
+            <StatPill icon="checkmark-circle" value={`${result.score}%`} />
+          </XStack>
+        </YStack>
+      </PopIn>
+      <YStack backgroundColor={c.pale} padding={18} borderRadius={22} gap={12}>
+        <Label>ポケットに入れたことば</Label>
         {result.turns.slice(2).map((turn) => (
-          <Panel key={turn.step}>
-            <Label>{mission.steps[turn.step]!.cue}</Label>
-            <Title small>
-              {turn.feedback.recast || mission.steps[turn.step]!.example}
-            </Title>
-            <Body small muted>
-              {turn.feedback.source === "ai" ? "AI添削" : "例文練習"} ·{" "}
-              {turn.helped ? "ヒントを利用" : "自力で回答"}
-            </Body>
-            <Action
-              secondary
-              onPress={() =>
-                speak(turn.feedback.recast || mission.steps[turn.step]!.example)
-              }
-            >
-              声に出してまねる
-            </Action>
-          </Panel>
+          <Text
+            key={turn.step}
+            fontSize={17}
+            lineHeight={25}
+            fontWeight="700"
+            color={c.green}
+          >
+            {turn.feedback.recast || mission.steps[turn.step]!.example}
+          </Text>
         ))}
+        <Body small muted>
+          使った表現は復習に追加しました。うまく言えなかった表現は10分後、それ以外は翌日にもう一度。
+        </Body>
       </YStack>
-      <Body muted>
-        使った表現は復習に追加しました。うまく言えなかった表現は10分後、それ以外は翌日に、もう一度思い出します。
-      </Body>
-      <Action testID="back-home" onPress={() => router.dismissTo("/")}>
+      <Action
+        testID="back-home"
+        icon="home-outline"
+        onPress={() => router.dismissTo("/")}
+      >
         ホームへ
       </Action>
       {!progress.active && (
         <Action
           secondary
+          compact
           onPress={() => {
             start(mission.id);
             router.replace("/lesson");
@@ -86,18 +89,22 @@ export default function Result() {
           同じ場面にもう一度
         </Action>
       )}
-      <YStack gap={12}>
-        <Title small>Conversation journal</Title>
+      <YStack gap={18} paddingTop={8}>
+        <XStack justifyContent="space-between" alignItems="center">
+          <Text fontSize={16} fontWeight="800" color={c.ink}>
+            会話をふりかえる
+          </Text>
+          <Label>{result.turns.length} TURNS</Label>
+        </XStack>
         {result.turns.map((turn) => (
-          <Panel key={turn.step}>
-            <Label>{mission[result.route].partner.toUpperCase()}</Label>
-            <Body>{turn.prompt}</Body>
-            <Label>YOU</Label>
-            <Body>{turn.answer}</Body>
-            <Body small muted>
-              {turn.feedback.feedback}
-            </Body>
-          </Panel>
+          <YStack key={turn.step} gap={13}>
+            <TutorMessage
+              text={turn.prompt}
+              partner={mission[result.route].partner}
+            />
+            <LearnerMessage text={turn.answer} />
+            <FeedbackMessage turn={turn} compact />
+          </YStack>
         ))}
       </YStack>
     </Frame>

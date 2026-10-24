@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Platform, useWindowDimensions } from "react-native";
 import { Stack, router, usePathname } from "expo-router";
 import { TamaguiProvider, YStack, Text } from "tamagui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -61,23 +62,35 @@ function AppNavigation() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: c.paper },
-          animation: "fade",
+          animation: "slide_from_right",
         }}
       />
     </>
   );
 }
 export default function RootLayout() {
+  const { width } = useWindowDimensions();
+  const framed = Platform.OS === "web" && width > 760;
   return (
     <TamaguiProvider config={config} defaultTheme="light">
       <QueryClientProvider client={queryClient}>
         <SafeAreaProvider>
-          <SafeAreaView
-            style={{ flex: 1, backgroundColor: c.paper }}
-            edges={["top", "left", "right"]}
-          >
-            <AppNavigation />
-          </SafeAreaView>
+          <YStack flex={1} backgroundColor="#DFE9E2" padding={framed ? 18 : 0}>
+            <SafeAreaView
+              style={{
+                flex: 1,
+                width: "100%",
+                maxWidth: 720,
+                alignSelf: "center",
+                borderRadius: framed ? 28 : 0,
+                overflow: "hidden",
+                backgroundColor: c.paper,
+              }}
+              edges={["top", "left", "right"]}
+            >
+              <AppNavigation />
+            </SafeAreaView>
+          </YStack>
         </SafeAreaProvider>
       </QueryClientProvider>
     </TamaguiProvider>

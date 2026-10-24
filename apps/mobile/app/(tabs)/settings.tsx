@@ -37,11 +37,11 @@ export default function Settings() {
     }
   }
   return (
-    <Frame title="Make this world yours." eyebrow="SETTINGS">
+    <Frame title="設定">
       {profile && !loadError && (
         <>
           <Panel>
-            <Label>YOUR ENGLISH SELF</Label>
+            <Label>プロフィール</Label>
             <Field
               accessibilityLabel="呼び名"
               value={name}
@@ -58,7 +58,7 @@ export default function Settings() {
             >
               呼び名を保存
             </Action>
-            <Title small>Live another little life.</Title>
+            <Title small>冒険する世界</Title>
             <XStack flexWrap="wrap" gap={12}>
               {(["baby", "real"] as const).map((route) => (
                 <Action
@@ -75,7 +75,7 @@ export default function Settings() {
             </Body>
           </Panel>
           <Panel>
-            <Label>DAILY RHYTHM</Label>
+            <Label>1日の目標と、話したいこと</Label>
             <XStack gap={10}>
               {([10, 20, 30] as const).map((dailyMinutes) => (
                 <Action
@@ -102,21 +102,19 @@ export default function Settings() {
         </>
       )}
       <Panel>
-        <Label>CONVERSATION</Label>
-        <Title small>
-          {hasCoach() ? "AI tutor configured" : "Phrase practice ready"}
-        </Title>
+        <Label>会話モード</Label>
+        <Title small>{hasCoach() ? "AIと会話" : "例文で会話"}</Title>
         <Body>
           {hasCoach()
             ? "AI添削を利用できます。回答と直前の会話を送信し、意図や自然な表現を確認します。応答に失敗した場合は、回答を残して再試行できます。"
-            : "例文練習と復習は、APIキーなしで使えます。AI添削はSupabaseとOpenAIを設定したビルドで利用できます。"}
+            : "例文練習と復習は、APIキーなしで使えます。このバージョンではAI添削は未接続です。"}
         </Body>
         <Body small muted>
           例文練習は用意された表現との照合です。AIの評価にも誤りがありえます。英語年齢はアプリ内の目安で、発音・CEFR・試験点数を測定するものではありません。
         </Body>
       </Panel>
       <Panel>
-        <Label>YOUR DATA</Label>
+        <Label>学習データ</Label>
         <Body>
           進捗と会話は、この端末・ブラウザに保存します。端末を変える前にバックアップを書き出してください。自動クラウド同期は行いません。
         </Body>

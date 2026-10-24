@@ -2,7 +2,15 @@ import Svg, { Circle, Ellipse, G, Path, Rect, Line } from "react-native-svg";
 import { useEffect, useRef } from "react";
 import { Animated, AccessibilityInfo } from "react-native";
 
-export function World({ age = 0 }: { age?: number }) {
+export function World({
+  age = 0,
+  portrait = false,
+  size = 56,
+}: {
+  age?: number;
+  portrait?: boolean;
+  size?: number;
+}) {
   const breathe = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     let animation: Animated.CompositeAnimation | undefined;
@@ -44,13 +52,17 @@ export function World({ age = 0 }: { age?: number }) {
     <Animated.View
       style={{
         transform: [{ translateY: breathe }],
-        width: "100%",
-        maxWidth: 360,
+        width: portrait ? size : "100%",
+        maxWidth: portrait ? size : 360,
         alignSelf: "center",
       }}
       accessibilityLabel={`英語年齢 ${age}、成長するアバター`}
     >
-      <Svg width="100%" height={250} viewBox="0 0 360 250">
+      <Svg
+        width="100%"
+        height={portrait ? size : 250}
+        viewBox={portrait ? "113 18 140 140" : "0 0 360 250"}
+      >
         <Circle cx={183} cy={120} r={104} fill="#ECF0DE" />
         <Circle cx={283} cy={49} r={21} fill="#EBC783" />
         <Path

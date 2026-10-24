@@ -1,64 +1,96 @@
 import { Tabs } from "expo-router";
-import { Icon } from "../../src/kit";
+import { YStack } from "tamagui";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Icon, type IconName } from "../../src/kit";
 import { palette as c } from "../../src/theme";
+const screens: {
+  name: string;
+  title: string;
+  accessibility: string;
+  icon: IconName;
+  active: IconName;
+}[] = [
+  {
+    name: "index",
+    title: "ホーム",
+    accessibility: "Today",
+    icon: "home-outline",
+    active: "home",
+  },
+  {
+    name: "journey",
+    title: "ぼうけん",
+    accessibility: "Journey",
+    icon: "map-outline",
+    active: "map",
+  },
+  {
+    name: "review",
+    title: "ことば",
+    accessibility: "Review",
+    icon: "albums-outline",
+    active: "albums",
+  },
+  {
+    name: "journal",
+    title: "思い出",
+    accessibility: "Journal",
+    icon: "chatbubbles-outline",
+    active: "chatbubbles",
+  },
+  {
+    name: "settings",
+    title: "設定",
+    accessibility: "Settings",
+    icon: "settings-outline",
+    active: "settings",
+  },
+];
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: c.green,
         tabBarInactiveTintColor: c.muted,
+        tabBarHideOnKeyboard: true,
         tabBarStyle: {
-          backgroundColor: c.paper,
+          backgroundColor: c.white,
           borderTopColor: c.line,
-          height: 76,
-          paddingTop: 10,
-          paddingBottom: 14,
+          height: 72 + insets.bottom,
+          paddingTop: 8,
+          paddingBottom: Math.max(8, insets.bottom),
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: "600" },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: "700", marginTop: 2 },
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Today",
-          tabBarIcon: ({ color }) => (
-            <Icon name="sunny-outline" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="journey"
-        options={{
-          title: "Journey",
-          tabBarIcon: ({ color }) => <Icon name="map-outline" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="review"
-        options={{
-          title: "Review",
-          tabBarIcon: ({ color }) => (
-            <Icon name="albums-outline" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="journal"
-        options={{
-          title: "Journal",
-          tabBarIcon: ({ color }) => <Icon name="book-outline" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: "Settings",
-          tabBarIcon: ({ color }) => (
-            <Icon name="options-outline" color={color} />
-          ),
-        }}
-      />
+      {screens.map((s) => (
+        <Tabs.Screen
+          key={s.name}
+          name={s.name}
+          options={{
+            title: s.title,
+            tabBarAccessibilityLabel: s.accessibility,
+            tabBarIcon: ({ color, focused }) => (
+              <YStack
+                width={48}
+                height={31}
+                borderRadius={12}
+                justifyContent="center"
+                alignItems="center"
+                backgroundColor={focused ? c.pale : "transparent"}
+              >
+                <Icon
+                  name={focused ? s.active : s.icon}
+                  color={color}
+                  size={22}
+                />
+              </YStack>
+            ),
+          }}
+        />
+      ))}
     </Tabs>
   );
 }

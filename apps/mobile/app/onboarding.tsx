@@ -21,6 +21,7 @@ import {
   ErrorNotice,
 } from "../src/kit";
 import { World } from "../src/World";
+import { SceneArt } from "../src/game";
 
 export default function Onboarding() {
   const save = useLearning((s) => s.profile);
@@ -51,8 +52,7 @@ export default function Onboarding() {
     const q = placementQuestions[question]!;
     return (
       <Frame
-        title="Find your first step."
-        eyebrow="A QUICK CHECK"
+        title="スタート地点を探そう"
         subtitle="文を読んで、自然な返答を選んでください。分からなくても大丈夫。"
       >
         <Meter value={question / placementQuestions.length} />
@@ -80,7 +80,7 @@ export default function Onboarding() {
   }
   if (question >= placementQuestions.length)
     return (
-      <Frame title="Your world is ready." eyebrow="LET'S BEGIN">
+      <Frame title="きみの冒険が、はじまる。">
         <World age={placementStage(correct) * 3} />
         <Panel>
           <Title small>
@@ -107,13 +107,14 @@ export default function Onboarding() {
     );
   return (
     <Frame
-      title={"A little English.\nA whole new world."}
-      eyebrow="BABY ENGLISH"
+      title="Baby English"
       subtitle="もうひとりの自分で、英語の世界を生きてみよう。"
     >
-      <World />
+      <YStack borderRadius={24} overflow="hidden">
+        <SceneArt height={210} />
+      </YStack>
       <Panel>
-        <Label>YOUR ENGLISH SELF</Label>
+        <Label>この世界での名前</Label>
         <Field
           accessibilityLabel="英語の世界での呼び名"
           placeholder="呼び名（例：Alex）"
@@ -127,8 +128,8 @@ export default function Onboarding() {
       </Panel>
       <YStack gap={12}>
         <Title small>どちらの世界から？</Title>
-        <XStack flexWrap="wrap" gap={12}>
-          <YStack flex={1} minWidth={240}>
+        <XStack flexWrap="wrap" gap={10}>
+          <YStack flex={1} minWidth={140}>
             <Action
               testID="choose-baby"
               secondary={route !== "baby"}
@@ -141,7 +142,7 @@ export default function Onboarding() {
               赤ちゃんから世界を発見。物語と一緒に成長。
             </Body>
           </YStack>
-          <YStack flex={1} minWidth={240}>
+          <YStack flex={1} minWidth={140}>
             <Action
               secondary={route !== "real"}
               onPress={() => setRoute("real")}
@@ -159,7 +160,7 @@ export default function Onboarding() {
         </Body>
       </YStack>
       <Panel>
-        <Label>MAKE IT YOURS</Label>
+        <Label>きみのペースで</Label>
         <Body>まず英語を使いたい場面</Body>
         <XStack flexWrap="wrap" gap={10}>
           {(["everyday", "work", "travel"] as const).map((value, i) => (

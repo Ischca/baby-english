@@ -21,6 +21,26 @@ test("onboarding, mission, feedback, journal and reload form a complete learning
   await page.getByTestId("start-lesson").click();
   await answer(page, "Hi!");
   await answer(page, "Yes, I am.");
+  const thread = page.getByTestId("conversation-thread");
+  await expect(thread.getByText("Hi!", { exact: true })).toHaveCount(1);
+  await expect(thread.getByText("Yes, I am.", { exact: true })).toHaveCount(1);
+  await expect(
+    thread.getByText("I gave you a little teddy bear. What do you say?"),
+  ).toBeVisible();
+  const composer = page.getByTestId("conversation-composer");
+  const beforeScroll = await composer.boundingBox();
+  await thread.evaluate((element) => {
+    element.scrollTop = 0;
+  });
+  await expect(thread.getByText("Hi!", { exact: true })).toBeInViewport();
+  expect(await composer.boundingBox()).toEqual(beforeScroll);
+  const viewport = page.viewportSize()!;
+  expect(beforeScroll!.y + beforeScroll!.height).toBeLessThanOrEqual(
+    viewport.height,
+  );
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(viewport.width);
   await answer(page, "Thank you.");
   await answer(page, "Goodbye!");
   await expect(page.getByText("あいさつする、できました。")).toBeVisible();
@@ -129,27 +149,25 @@ test("corrupt local data is preserved and can be recovered from a validated back
   expect(
     await page.evaluate(() => localStorage.getItem("baby-english.v2")),
   ).toBe("not-json");
-  await page
-    .getByLabel("バックアップJSON")
-    .fill(
-      JSON.stringify({
-        version: 2,
-        profile: {
-          name: "Restored",
-          route: "baby",
-          focus: "everyday",
-          dailyMinutes: 10,
-          placement: 0,
-        },
-        active: null,
-        history: [],
-        reviews: [],
-        mastered: [],
-        xp: 0,
-        activity: {},
-        updatedAt: new Date().toISOString(),
-      }),
-    );
+  await page.getByLabel("バックアップJSON").fill(
+    JSON.stringify({
+      version: 2,
+      profile: {
+        name: "Restored",
+        route: "baby",
+        focus: "everyday",
+        dailyMinutes: 10,
+        placement: 0,
+      },
+      active: null,
+      history: [],
+      reviews: [],
+      mastered: [],
+      xp: 0,
+      activity: {},
+      updatedAt: new Date().toISOString(),
+    }),
+  );
   await page
     .getByRole("button", { name: "バックアップを復元", exact: true })
     .click();

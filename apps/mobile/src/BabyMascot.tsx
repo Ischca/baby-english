@@ -221,9 +221,9 @@ export function BabyMascot({ size = 150 }: { size?: number }) {
         accessible={false}
       >
         <Ellipse
-          cx={121}
-          cy={224}
-          rx={67}
+          cx={122}
+          cy={223}
+          rx={50}
           ry={9}
           fill="#345B40"
           opacity={0.17}
@@ -243,114 +243,130 @@ export function BabyMascot({ size = 150 }: { size?: number }) {
           testID="mascot-arm"
           style={{
             transform: [
-              { translateX: -47 * scale },
-              { translateY: 35 * scale },
+              { translateX: -39 * scale },
+              { translateY: 40 * scale },
               { rotate: armAngle },
-              { translateX: 47 * scale },
-              { translateY: -35 * scale },
+              { translateX: 39 * scale },
+              { translateY: -40 * scale },
             ],
           }}
         >
           <G {...line}>
-            {/* Four fingers and an inward-facing thumb, joined to a single palm. */}
+            {/* A small open palm and a short, rounded forearm share one outline. */}
             <Path
-              d="M49 134C44 132 40 129 38 124L32 114C29 110 30 107 33 107C35 107 36 110 39 114L35 104C34 100 36 98 38 99C41 99 42 104 44 110L42 100C42 97 44 95 47 96C50 97 50 104 51 110L52 102C53 98 57 99 58 102L58 116L62 112C65 110 68 113 66 116L61 125C59 130 57 133 56 135C63 141 69 147 77 151C81 155 78 162 72 163C64 166 54 149 49 134Z"
+              d="M58 151C53 148 51 144 51 140L48 135C46 132 47 130 49 130C51 130 52 133 54 135L52 128C51 125 54 123 56 126L59 133L58 125C58 122 62 122 63 125L64 133L65 128C66 125 69 126 69 129L69 139L73 136C76 135 78 138 75 141L70 148C68 151 68 153 68 154C73 155 77 158 81 155C87 155 88 162 83 166C76 173 66 163 58 151Z"
               fill={skin}
             />
             <Path
-              d="M57 118Q52 118 51 123"
+              d="M68 141Q64 140 62 144"
               fill="none"
               stroke="#C99770"
-              strokeWidth={1.8}
+              strokeWidth={1.6}
             />
           </G>
         </ArtLayer>
         <ArtLayer size={size}>
           <G {...line}>
-            {/* One short sleeve connects the raised forearm to its shoulder. */}
             <Path
-              d="M93 138C84 136 76 141 70 149L68 154Q71 160 78 162L97 148Z"
+              d="M94 137C86 136 79 142 75 150L76 156Q81 161 87 157L99 146Z"
               fill={cream}
             />
             <Path
-              d="M70 149Q75 155 82 156"
+              d="M77 151Q82 155 87 153"
               fill="none"
               stroke="#D8C7A6"
-              strokeWidth={2}
+              strokeWidth={1.8}
             />
-            <Path d="M109 128V143Q123 151 136 143V128" fill={skin} />
-            {/* The torso and both bent trouser legs share one continuous silhouette. */}
+            <Path d="M109 128V141Q123 148 136 141V128" fill={skin} />
+            {/* A round belly and tucked knees keep the body smaller than the head. */}
             <Path
-              d="M98 134Q122 127 146 134L160 173C177 172 188 182 189 195C190 207 179 215 165 212L139 205Q122 211 105 205L79 212C65 215 53 207 53 196C53 184 66 174 84 174Z"
+              d="M99 131C90 138 84 150 84 168C84 188 99 199 122 199C145 199 160 188 160 168C160 150 154 138 145 131Z"
               fill={green}
             />
             <Path
-              d="M92 180Q84 185 80 196M152 180Q161 185 164 196"
+              d="M104 180C94 175 82 182 81 193C80 202 87 208 98 205L111 198"
+              fill={green}
+            />
+            <Path
+              d="M140 180C150 175 162 182 163 193C164 202 157 208 146 205L133 198"
+              fill={green}
+            />
+            <Path
+              d="M113 194Q122 198 131 194"
               fill="none"
               stroke="#789580"
-              strokeWidth={2.2}
+              strokeWidth={1.8}
             />
-            {/* The other arm rests alongside the body, with its hand over the knee. */}
+            {/* The relaxed arm is equally short and plump, with a small curled hand. */}
             <Path
-              d="M159 156C162 164 164 170 164 175C159 174 157 177 160 181L164 186C169 191 178 190 181 184C185 177 177 163 173 155Z"
+              d="M159 153C166 153 169 160 167 166C167 173 163 177 157 176C151 175 149 170 151 165L154 155Z"
               fill={skin}
             />
             <Path
-              d="M149 138C161 137 170 145 174 155Q170 162 159 163L148 151Z"
+              d="M150 138C158 138 165 144 165 153C164 159 157 162 153 158L145 147Z"
               fill={cream}
             />
             <Path
-              d="M159 157Q166 157 172 153"
+              d="M154 154Q159 156 163 152"
               fill="none"
               stroke="#D8C7A6"
-              strokeWidth={2}
-            />
-            <Path
-              d="M169 180L171 184M175 178L177 182"
-              fill="none"
-              stroke="#C99770"
               strokeWidth={1.8}
             />
             <Path
-              d="M98 139L94 160M146 139L150 160"
+              d="M153 164Q158 164 157 169M161 170L161 172"
+              fill="none"
+              stroke="#C99770"
+              strokeWidth={1.6}
+            />
+            <Path
+              d="M101 137L99 154M143 137L145 154"
               fill="none"
               stroke="#749A80"
-              strokeWidth={8}
+              strokeWidth={7}
             />
-            <Circle cx={94} cy={159} r={3.5} fill="#F5CB77" strokeWidth={2} />
-            <Circle cx={150} cy={159} r={3.5} fill="#F5CB77" strokeWidth={2} />
+            <Circle cx={99} cy={153} r={3.2} fill="#F5CB77" strokeWidth={1.8} />
+            <Circle
+              cx={145}
+              cy={153}
+              r={3.2}
+              fill="#F5CB77"
+              strokeWidth={1.8}
+            />
             <Path
-              d="M111 174H135V183Q123 193 111 183Z"
+              d="M113 170H131V177Q122 186 113 177Z"
               fill="#BBD8BB"
               stroke="#789580"
-              strokeWidth={2}
+              strokeWidth={1.8}
             />
-            <Path d="M101 130Q121 141 146 130L123 153Z" fill="#EFB278" />
+            <Path d="M105 131Q122 140 140 131L124 148Z" fill="#EFB278" />
             <Path
-              d="M105 136L122 145L140 136"
+              d="M111 137L123 142L135 137"
               stroke="#D99962"
-              strokeWidth={2}
+              strokeWidth={1.8}
               fill="none"
             />
-            {/* Short cuffs overlap the shoes, with both soles on the same ground plane. */}
-            <Path d="M66 195Q78 192 87 202L82 211L61 206Z" fill="#92B89D" />
+            {/* Soft booties sit directly beneath the bent knees, close to the belly. */}
             <Path
-              d="M176 195Q164 192 155 202L160 211L181 206Z"
+              d="M85 198Q92 194 100 199L103 204Q93 207 84 204Z"
               fill="#92B89D"
             />
             <Path
-              d="M58 201C47 201 41 211 49 220C57 228 77 226 85 217C91 209 80 201 73 200Q65 198 58 201Z"
+              d="M159 198Q152 194 144 199L141 204Q151 207 160 204Z"
+              fill="#92B89D"
+            />
+            <Path
+              d="M89 198C80 197 74 205 76 214C78 223 95 226 104 218C113 211 107 201 99 200Z"
               fill={cream}
             />
             <Path
-              d="M184 201C195 201 201 211 193 220C185 228 165 226 157 217C151 209 162 201 169 200Q177 198 184 201Z"
+              d="M155 198C164 197 170 205 168 214C166 223 149 226 140 218C131 211 137 201 145 200Z"
               fill={cream}
             />
             <Path
-              d="M48 215Q62 224 82 214M160 214Q180 224 194 215"
+              d="M79 214Q91 221 104 214M140 214Q153 221 165 214"
               fill="none"
-              stroke="#C8AB83"
-              strokeWidth={2}
+              stroke="#D4BE9B"
+              strokeWidth={1.5}
             />
           </G>
         </ArtLayer>

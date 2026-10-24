@@ -1,0 +1,5 @@
+{
+  "imports": { "zod": "npm:zod@3.24.3" },
+  "compilerOptions": { "strict": true, "noImplicitAny": true, "exactOptionalPropertyTypes": true },
+  "tasks": { "check": "deno check coach/index.ts transcribe/index.ts" }
+}

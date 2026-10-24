@@ -191,3 +191,7 @@ export async function exportSession(
     request
   );
 }
+
+// v2 network entrypoint; legacy exports above remain for the frozen v0 screens.
+export { evaluateWithCoach, hasCoach, transcribe } from "./coach";
+export { connectCoach } from "./cloud";

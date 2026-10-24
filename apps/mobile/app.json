@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "Baby English",
+    "slug": "baby-english",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -23,7 +23,19 @@
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single"
+    },
+    "scheme": "babyenglish",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-av",
+        {
+          "microphonePermission": "\u82f1\u8a9e\u3092\u8a71\u3059\u7df4\u7fd2\u306e\u305f\u3081\u306b\u30de\u30a4\u30af\u3092\u4f7f\u7528\u3057\u307e\u3059\u3002"
+        }
+      ]
+    ]
   }
 }
